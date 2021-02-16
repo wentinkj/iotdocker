@@ -3,15 +3,51 @@ services:
   grafana:
     image: "grafana/grafana"
     ports:
-      - "3000:3000"
+      - "8080:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana-provisioning/:/etc/grafana/provisioning
+    depends_on:
+      - influxdb
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+    networks:
+      - iot
   influxdb:
     image: "influxdb"
     ports:
       - "8086:8086"
+    volumes:
+      - influxdb-storage:/var/lib/influxdb
     environment:
-      - INFLUXDB_DB=flux
+      - INFLUXDB_DB=db0
+      - INFLUXDB_ADMIN_USER=${INFLUXDB_USERNAME}
+      - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_PASSWORD}
+    networks:
+      - iot
   nodered:
     image: "nodered/node-red"
     ports:
-      - "1880:1880"
+      - "8081:1880"
+    volumes:
+      - ./nodereddata:/data
+    depends_on:
+      - influxdb
+    networks:
+      - iot
+  mqtt:
+    image: "eclipse-mosquitto"
+    ports:
+      - "8090:1883"
+    volumes:
+      - ${PWD}/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    networks:
+      - iot
+volumes:
+  influxdb-storage:
+  grafana-storage:
 
+networks:
+  iot:
