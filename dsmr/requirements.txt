@@ -1,0 +1,8 @@
+dsmr-parser==0.27
+paho-mqtt==1.5.1
+pkg-resources==0.0.0
+pyserial==3.5
+pyserial-asyncio==0.5
+pytz==2021.1
+PyYAML==5.4.1
+tailer==0.4.1

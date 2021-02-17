@@ -29,12 +29,16 @@ services:
       - iot
   nodered:
     image: "nodered/node-red"
+    build: nodered
     ports:
       - "8081:1880"
-    volumes:
-      - ./nodereddata:/data
     depends_on:
       - influxdb
+#    volumes:
+#      - nodered-storage:/data
+    environment:
+      - NODE_RED_CREDENTIAL_SECRET=supadupasecret
+      - TZ=Europe/Amsterdam
     networks:
       - iot
   mqtt:
@@ -42,12 +46,21 @@ services:
     ports:
       - "8090:1883"
     volumes:
-      - ${PWD}/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+#      - mqtt-storage:/mosquitto/data
     networks:
       - iot
+  dsmr:
+    image: python:3
+    build: dsmr
+    depends_on:
+      - mqtt
+      - nodered
 volumes:
   influxdb-storage:
   grafana-storage:
+#  nodered-storage:
+#  mqtt-storage:
 
 networks:
   iot:

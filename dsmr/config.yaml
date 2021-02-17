@@ -1,0 +1,9 @@
+mqtt_broker_address: mqtt
+mqtt_client_name: smart_meter
+
+values_of_interest:
+  - CURRENT_ELECTRICITY_USAGE
+  - ELECTRICITY_USED_TARIFF_ALL
+  - HOURLY_GAS_METER_READING
+
+topic: home/smart_meter
