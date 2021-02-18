@@ -12,7 +12,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
-      - GF_INSTALL_PLUGINS=grafana-clock-panel
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-worldmap-panel
     networks:
       - iot
   influxdb:
@@ -28,8 +28,14 @@ services:
     networks:
       - iot
   nodered:
-    image: "nodered/node-red"
-    build: nodered
+    build:
+      context: ./node-red
+      dockerfile: Dockerfile
+      args:
+        node_red_version: "latest"
+        node_red_contrib_ttn_version: "latest"
+#        node_red_install_modules: ""
+    user: "root"
     ports:
       - "8081:1880"
     depends_on:
@@ -47,20 +53,27 @@ services:
       - "8090:1883"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
-#      - mqtt-storage:/mosquitto/data
+      - mqtt-storage:/mosquitto/data
     networks:
       - iot
   dsmr:
     image: python:3
     build: dsmr
+    environment:
+      - MQTT_BROKER=mqtt
+      - MQTT_CLIENT_NAME=dsmr
+#      - MQTT_USER=admin
+#      - MQTT_PASSWORD=admin
     depends_on:
       - mqtt
       - nodered
+    networks:
+      - iot
 volumes:
   influxdb-storage:
   grafana-storage:
-#  nodered-storage:
-#  mqtt-storage:
+  nodered-storage:
+  mqtt-storage:
 
 networks:
   iot:

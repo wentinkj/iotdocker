@@ -1,0 +1,115 @@
+[
+    {
+        "id": "eeef436f.6b6ef",
+        "type": "tab",
+        "label": "DSMR",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "4857eceb.a33844",
+        "type": "mqtt in",
+        "z": "eeef436f.6b6ef",
+        "name": "smartmeter in",
+        "topic": "home/smart_meter/#",
+        "qos": "2",
+        "datatype": "utf8",
+        "broker": "3ee361f3.d6a75e",
+        "x": 210,
+        "y": 200,
+        "wires": [
+            [
+                "dc638434.a7f758"
+            ]
+        ]
+    },
+    {
+        "id": "25194e72.17aae2",
+        "type": "debug",
+        "z": "eeef436f.6b6ef",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 870,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "dc638434.a7f758",
+        "type": "function",
+        "z": "eeef436f.6b6ef",
+        "name": "float and sensor conversion",
+        "func": "msg.payload = Number(msg.payload);\nvar topicParts = msg.topic.split('/')\nmsg.measurement = \"meterssss.\" + topicParts.pop().toLowerCase()\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 440,
+        "y": 200,
+        "wires": [
+            [
+                "25194e72.17aae2",
+                "92199918.84ff38"
+            ]
+        ]
+    },
+    {
+        "id": "92199918.84ff38",
+        "type": "influxdb out",
+        "z": "eeef436f.6b6ef",
+        "influxdb": "262b8243.409f1e",
+        "name": "Write measurement",
+        "measurement": "",
+        "precision": "s",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "organisation",
+        "bucket": "bucket",
+        "x": 910,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "3ee361f3.d6a75e",
+        "type": "mqtt-broker",
+        "name": "mqtt",
+        "broker": "mqtt",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": false,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "262b8243.409f1e",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": "8086",
+        "protocol": "http",
+        "database": "db0",
+        "name": "influxdb",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://localhost:8086",
+        "rejectUnauthorized": true
+    }
+]

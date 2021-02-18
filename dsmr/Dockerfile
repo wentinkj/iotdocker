@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD [ "python", "./dsmr.py" ]
+CMD [ "python", "./sim.py" ]

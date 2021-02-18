@@ -1,0 +1,211 @@
+[
+    {
+        "id": "1b66f016.3132d",
+        "type": "tab",
+        "label": "Afvalkalender",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "c1676394.6d898",
+        "type": "http request",
+        "z": "1b66f016.3132d",
+        "name": "ophalen afvalkalender",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 400,
+        "y": 260,
+        "wires": [
+            [
+                "d7153cae.77ff2"
+            ]
+        ]
+    },
+    {
+        "id": "d9c295e1.b45248",
+        "type": "inject",
+        "z": "1b66f016.3132d",
+        "name": "Timer en postcode",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "postcode",
+                "v": "9413DA",
+                "vt": "str"
+            },
+            {
+                "p": "huisnummer",
+                "v": "10",
+                "vt": "str"
+            },
+            {
+                "p": "weken",
+                "v": "20",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "*/30 8 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 140,
+        "wires": [
+            [
+                "90814d96.071d7"
+            ]
+        ]
+    },
+    {
+        "id": "90814d96.071d7",
+        "type": "template",
+        "z": "1b66f016.3132d",
+        "name": "bepaal url",
+        "field": "url",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "https://www.middendrenthe.nl/website/!ctm_mobile_api.route?method=afvalkalender&mPostcode={{postcode}}&mHuisnr={{huisnummer}}&mWeken={{weken}}\n",
+        "output": "str",
+        "x": 360,
+        "y": 140,
+        "wires": [
+            [
+                "c1676394.6d898"
+            ]
+        ]
+    },
+    {
+        "id": "4cb2308e.79d7c",
+        "type": "debug",
+        "z": "1b66f016.3132d",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1230,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "d7153cae.77ff2",
+        "type": "xml",
+        "z": "1b66f016.3132d",
+        "name": "parse kalender",
+        "property": "payload",
+        "attr": "",
+        "chr": "",
+        "x": 620,
+        "y": 260,
+        "wires": [
+            [
+                "ce01894c.c80048"
+            ]
+        ]
+    },
+    {
+        "id": "e94eecb0.4ac86",
+        "type": "function",
+        "z": "1b66f016.3132d",
+        "name": "Eerstvolgende",
+        "func": "var ophaaldatum = parseInt(msg.payload.mdapi.ophaalschema[0].dag[0].yyyymmdd[0])\nvar msg = {\n    volgendeophaaldatum: new Date(ophaaldatum / 10000, (ophaaldatum % 10000 / 100) - 1, ophaaldatum % 100, 10, 0, 0),\n    volgendecontainer: msg.payload.mdapi.ophaalschema[0].dag[0].container[0],\n    payload: msg.payload\n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "x": 980,
+        "y": 140,
+        "wires": [
+            [
+                "4cb2308e.79d7c"
+            ]
+        ]
+    },
+    {
+        "id": "ce01894c.c80048",
+        "type": "switch",
+        "z": "1b66f016.3132d",
+        "name": "Check if call gelukt",
+        "property": "payload.mdapi.status[0]",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "ok",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 850,
+        "y": 260,
+        "wires": [
+            [
+                "e94eecb0.4ac86"
+            ],
+            [
+                "16282809.afa478"
+            ]
+        ]
+    },
+    {
+        "id": "16282809.afa478",
+        "type": "debug",
+        "z": "1b66f016.3132d",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1070,
+        "y": 360,
+        "wires": [],
+        "inputLabels": [
+            "error"
+        ]
+    },
+    {
+        "id": "77b6c450.1a2e5c",
+        "type": "comment",
+        "z": "1b66f016.3132d",
+        "name": "Node dashboard?",
+        "info": "",
+        "x": 1200,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "4be28eb5.5e77a",
+        "type": "comment",
+        "z": "1b66f016.3132d",
+        "name": "Afvalkalender",
+        "info": "# Afvalkalender gemeente midden drenthe\n\nIn de inject staan postcode en huisnummer waarvoor de data moet worden opgevraagd en ook de frequentie.\n\nDe output gaat nu nog nergens heen, maar denk ik straks naar een node dashboard.",
+        "x": 160,
+        "y": 80,
+        "wires": []
+    }
+]
